@@ -239,6 +239,15 @@ export default function CalendarScreen() {
     }
   };
 
+  const formatDisplayDate = (dateString: string, formatString: string) => {
+    try {
+      if (!dateString || dateString === '') return 'Data inválida';
+      return format(parseISO(dateString + 'T00:00:00'), formatString, { locale: pt });
+    } catch (error) {
+      return 'Data inválida';
+    }
+  };
+
   const openNewEventModal = (date?: string) => {
     setSelectedEventDate(date || selectedDate);
     setShowEventModal(true);
