@@ -436,7 +436,7 @@ export default function CalendarScreen() {
                 <View style={styles.dateDisplay}>
                   <Text style={styles.dateText}>
                     {selectedEventDate ? 
-                      format(parseISO(selectedEventDate + 'T00:00:00'), 'dd \'de\' MMMM \'de\' yyyy', { locale: pt }) :
+                      formatDisplayDate(selectedEventDate, 'dd \'de\' MMMM \'de\' yyyy') :
                       'Selecione uma data'
                     }
                   </Text>
