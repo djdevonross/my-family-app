@@ -12,8 +12,6 @@ import uuid
 from datetime import datetime, timedelta
 import bcrypt
 from jose import JWTError, jwt
-import socketio
-
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -25,9 +23,6 @@ db = client[os.environ['DB_NAME']]
 # JWT Secret
 JWT_SECRET = "my_family_secret_key_2025"
 JWT_ALGORITHM = "HS256"
-
-# Create Socket.IO server
-sio = socketio.AsyncServer(cors_allowed_origins="*", logger=True)
 
 # Create the main app
 app = FastAPI()
