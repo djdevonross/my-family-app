@@ -148,15 +148,18 @@
 
   - task: "API endpoints para chat/mensagens"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Endpoints GET/POST para mensagens implementados, recém adicionado POST endpoint"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TODOS OS TESTES PASSARAM: POST /api/chat/messages (envio de mensagens), GET /api/chat/messages (listagem). Testado com todos os 5 membros da família enviando mensagens realistas. Estrutura correta com avatar, nome e ordenação cronológica."
 
 ## frontend:
   - task: "Tela de login e autenticação"
