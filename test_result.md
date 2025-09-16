@@ -133,15 +133,18 @@
 
   - task: "API endpoints para notas e imagens"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Endpoints GET/POST para notas implementados, suporte a imagens base64"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TODOS OS TESTES PASSARAM: POST /api/notes (criação com e sem imagens base64), GET /api/notes (listagem). Testado com mãe (nota com imagem) e filho1 (nota sem imagem). Estrutura de dados correta com todos os campos obrigatórios."
 
   - task: "API endpoints para chat/mensagens"
     implemented: true
