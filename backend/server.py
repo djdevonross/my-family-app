@@ -295,7 +295,7 @@ app.add_middleware(
 )
 
 # Mount Socket.IO
-app = socketio.ASGIApp(sio, app)
+socket_app = socketio.ASGIApp(sio, app)
 
 # Configure logging
 logging.basicConfig(
