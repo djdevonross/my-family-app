@@ -253,6 +253,93 @@ export default function CalendarScreen() {
     setShowEventModal(true);
   };
 
+  const renderWeekView = () => {
+    const selectedParsedDate = parseISO(selectedDate + 'T00:00:00');
+    const weekStart = startOfWeek(selectedParsedDate, { weekStartsOn: 1 }); // Monday start
+    const weekDays = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const currentDay = addDays(weekStart, i);
+      const dayString = format(currentDay, 'yyyy-MM-dd');
+      const dayEvents = getEventsForDate(dayString);
+      
+      weekDays.push(
+        <TouchableOpacity
+          key={dayString}
+          style={[
+            styles.weekDay,
+            dayString === selectedDate && styles.weekDaySelected
+          ]}
+          onPress={() => setSelectedDate(dayString)}
+        >
+          <Text style={[
+            styles.weekDayText,
+            dayString === selectedDate && styles.weekDayTextSelected
+          ]}>
+            {format(currentDay, 'dd')}
+          </Text>
+          <Text style={styles.weekDayName}>
+            {format(currentDay, 'EEE', { locale: pt })}
+          </Text>
+          {dayEvents.length > 0 && (
+            <View style={styles.weekEventDots}>
+              {dayEvents.slice(0, 3).map((event, index) => (
+                <View
+                  key={event.id}
+                  style={[styles.weekEventDot, { backgroundColor: event.color }]}
+                />
+              ))}
+              {dayEvents.length > 3 && (
+                <Text style={styles.weekEventMore}>+{dayEvents.length - 3}</Text>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    }
+    
+    return <View style={styles.weekContainer}>{weekDays}</View>;
+  };
+
+  const renderDayView = () => {
+    const dayEvents = getEventsForDate(selectedDate);
+    
+    return (
+      <View style={styles.dayContainer}>
+        <ScrollView style={styles.dayEventsScroll}>
+          {dayEvents.length === 0 ? (
+            <View style={styles.noDayEvents}>
+              <Text style={styles.noDayEventsText}>Nenhum evento para este dia</Text>
+            </View>
+          ) : (
+            dayEvents.map((event) => (
+              <View key={event.id} style={[styles.dayEventCard, { borderLeftColor: event.color }]}>
+                <View style={styles.dayEventHeader}>
+                  <Text style={styles.dayEventTime}>
+                    {formatEventTime(event.date)}
+                  </Text>
+                  <Text style={styles.dayEventCreator}>{event.created_by_name}</Text>
+                </View>
+                <Text style={styles.dayEventTitle}>{event.title}</Text>
+                {event.description && (
+                  <Text style={styles.dayEventDescription}>{event.description}</Text>
+                )}
+                {event.created_by === user?.id && (
+                  <TouchableOpacity
+                    style={styles.dayEventDeleteButton}
+                    onPress={() => deleteEvent(event.id)}
+                  >
+                    <Text style={styles.dayEventDeleteText}>Eliminar Evento</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
