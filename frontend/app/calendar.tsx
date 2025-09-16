@@ -232,7 +232,11 @@ export default function CalendarScreen() {
   };
 
   const formatEventTime = (dateString: string) => {
-    return format(parseISO(dateString), 'HH:mm', { locale: pt });
+    try {
+      return format(parseISO(dateString), 'HH:mm', { locale: pt });
+    } catch (error) {
+      return '12:00';
+    }
   };
 
   const openNewEventModal = (date?: string) => {
