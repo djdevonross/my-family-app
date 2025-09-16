@@ -109,6 +109,11 @@ class ChatMessage(BaseModel):
 class ChatMessageCreate(BaseModel):
     message: str
 
+# Basic route
+@api_router.get("/")
+async def root():
+    return {"message": "My Family API - Bem-vindos!", "status": "running"}
+
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
