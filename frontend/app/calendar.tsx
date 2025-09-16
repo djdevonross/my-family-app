@@ -423,7 +423,10 @@ export default function CalendarScreen() {
                 <Text style={styles.inputLabel}>Data Selecionada</Text>
                 <View style={styles.dateDisplay}>
                   <Text style={styles.dateText}>
-                    {format(parseISO(selectedEventDate + 'T00:00:00'), 'dd \'de\' MMMM \'de\' yyyy', { locale: pt })}
+                    {selectedEventDate ? 
+                      format(parseISO(selectedEventDate + 'T00:00:00'), 'dd \'de\' MMMM \'de\' yyyy', { locale: pt }) :
+                      'Selecione uma data'
+                    }
                   </Text>
                 </View>
               </View>
