@@ -332,7 +332,7 @@ export default function CalendarScreen() {
           <View style={styles.eventsHeader}>
             <Text style={styles.eventsTitle}>
               Eventos para {selectedDate ? 
-                format(parseISO(selectedDate + 'T00:00:00'), 'dd \'de\' MMMM', { locale: pt }) :
+                formatDisplayDate(selectedDate, 'dd \'de\' MMMM') :
                 'hoje'
               }
             </Text>
