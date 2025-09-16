@@ -255,29 +255,6 @@ async def get_chat_messages(current_user: User = Depends(get_current_user)):
     messages = await db.chat_messages.find().sort("created_at", 1).limit(100).to_list(100)
     return [ChatMessage(**message) for message in messages]
 
-# Socket.IO events
-@sio.event
-async def connect(sid, environ):
-    print(f"Client {sid} connected")
-
-@sio.event
-async def disconnect(sid):
-    print(f"Client {sid} disconnected")
-
-@sio.event
-async def send_message(sid, data):
-    # Save message to database
-    message = ChatMessage(
-        message=data["message"],
-        created_by=data["user_id"],
-        created_by_name=data["user_name"],
-        created_by_avatar=data["user_avatar"]
-    )
-    await db.chat_messages.insert_one(message.dict())
-    
-    # Emit to all connected clients
-    await sio.emit('new_message', message.dict())
-
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -288,9 +265,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Mount Socket.IO
-socket_app = socketio.ASGIApp(sio, app)
 
 # Configure logging
 logging.basicConfig(
