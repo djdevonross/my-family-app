@@ -122,11 +122,14 @@
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Endpoints GET/POST/DELETE para eventos implementados, precisa testar CRUD completo"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TODOS OS TESTES PASSARAM: POST /api/events (criação com pai e mãe), GET /api/events (listagem), DELETE /api/events/{id} (eliminação apenas pelo criador). Testado com dados reais da família, cores diferentes por utilizador, verificação de permissões de eliminação."
 
   - task: "API endpoints para notas e imagens"
     implemented: true
