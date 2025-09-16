@@ -260,6 +260,17 @@ async def get_chat_messages(current_user: User = Depends(get_current_user)):
     messages = await db.chat_messages.find().sort("created_at", 1).limit(100).to_list(100)
     return [ChatMessage(**message) for message in messages]
 
+@api_router.post("/chat/messages", response_model=ChatMessage)
+async def create_chat_message(message_data: ChatMessageCreate, current_user: User = Depends(get_current_user)):
+    message = ChatMessage(
+        message=message_data.message,
+        created_by=current_user.id,
+        created_by_name=current_user.name,
+        created_by_avatar=current_user.avatar
+    )
+    await db.chat_messages.insert_one(message.dict())
+    return message
+
 # Include the router in the main app
 app.include_router(api_router)
 
