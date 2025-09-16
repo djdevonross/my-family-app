@@ -301,30 +301,50 @@ export default function CalendarScreen() {
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {/* Calendar */}
+        {/* Calendar Views */}
         <View style={styles.calendarContainer}>
-          <Calendar
-            current={selectedDate}
-            onDayPress={(day) => setSelectedDate(day.dateString)}
-            markedDates={getMarkedDates()}
-            monthFormat={'MMMM yyyy'}
-            theme={{
-              backgroundColor: '#ffffff',
-              calendarBackground: '#ffffff',
-              textSectionTitleColor: '#b6c1cd',
-              selectedDayBackgroundColor: '#FF6B35',
-              selectedDayTextColor: '#ffffff',
-              todayTextColor: '#FF6B35',
-              dayTextColor: '#2d4150',
-              textDisabledColor: '#d9e1e8',
-              dotColor: '#00adf5',
-              selectedDotColor: '#ffffff',
-              arrowColor: '#FF6B35',
-              disabledArrowColor: '#d9e1e8',
-              monthTextColor: '#2C3E50',
-              indicatorColor: '#FF6B35',
-            }}
-          />
+          {viewMode === 'month' && (
+            <Calendar
+              current={selectedDate}
+              onDayPress={(day) => setSelectedDate(day.dateString)}
+              markedDates={getMarkedDates()}
+              monthFormat={'MMMM yyyy'}
+              theme={{
+                backgroundColor: '#ffffff',
+                calendarBackground: '#ffffff',
+                textSectionTitleColor: '#b6c1cd',
+                selectedDayBackgroundColor: '#FF6B35',
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: '#FF6B35',
+                dayTextColor: '#2d4150',
+                textDisabledColor: '#d9e1e8',
+                dotColor: '#00adf5',
+                selectedDotColor: '#ffffff',
+                arrowColor: '#FF6B35',
+                disabledArrowColor: '#d9e1e8',
+                monthTextColor: '#2C3E50',
+                indicatorColor: '#FF6B35',
+              }}
+            />
+          )}
+
+          {viewMode === 'week' && (
+            <View style={styles.weekView}>
+              <Text style={styles.weekTitle}>
+                Semana de {formatDisplayDate(selectedDate, 'dd MMM')}
+              </Text>
+              {renderWeekView()}
+            </View>
+          )}
+
+          {viewMode === 'day' && (
+            <View style={styles.dayView}>
+              <Text style={styles.dayTitle}>
+                {formatDisplayDate(selectedDate, 'dd \'de\' MMMM \'de\' yyyy')}
+              </Text>
+              {renderDayView()}
+            </View>
+          )}
         </View>
 
         {/* Events for Selected Date */}
