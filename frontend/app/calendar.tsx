@@ -322,7 +322,10 @@ export default function CalendarScreen() {
         <View style={styles.eventsContainer}>
           <View style={styles.eventsHeader}>
             <Text style={styles.eventsTitle}>
-              Eventos para {format(parseISO(selectedDate + 'T00:00:00'), 'dd \'de\' MMMM', { locale: pt })}
+              Eventos para {selectedDate ? 
+                format(parseISO(selectedDate + 'T00:00:00'), 'dd \'de\' MMMM', { locale: pt }) :
+                'hoje'
+              }
             </Text>
             <TouchableOpacity
               style={styles.addEventButton}
