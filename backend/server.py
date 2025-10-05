@@ -766,33 +766,39 @@ async def create_notification(notification_data: NotificationCreate):
     """Helper function to create notifications for family members"""
     if notification_data.recipient_id:
         # Send to specific user
-        notification = Notification(
-            recipient_id=notification_data.recipient_id,
-            sender_id=notification_data.sender_id,
-            sender_name=notification_data.sender_name,
-            type=notification_data.type,
-            title=notification_data.title,
-            message=notification_data.message,
-            icon=notification_data.icon,
-            module_icon=notification_data.module_icon,
-            data=notification_data.data
-        )
+        notification_dict = {
+            "recipient_id": notification_data.recipient_id,
+            "sender_id": notification_data.sender_id,
+            "sender_name": notification_data.sender_name,
+            "type": notification_data.type,
+            "title": notification_data.title,
+            "message": notification_data.message,
+            "icon": notification_data.icon,
+            "module_icon": notification_data.module_icon,
+            "data": notification_data.data,
+            "is_read": False,
+            "created_at": datetime.utcnow()
+        }
+        notification = Notification(**notification_dict)
         await db.notifications.insert_one(notification.dict())
     else:
         # Send to all family members
         users = await db.users.find().to_list(5)
         for user_data in users:
-            notification = Notification(
-                recipient_id=user_data["id"],
-                sender_id=notification_data.sender_id,
-                sender_name=notification_data.sender_name,
-                type=notification_data.type,
-                title=notification_data.title,
-                message=notification_data.message,
-                icon=notification_data.icon,
-                module_icon=notification_data.module_icon,
-                data=notification_data.data
-            )
+            notification_dict = {
+                "recipient_id": user_data["id"],
+                "sender_id": notification_data.sender_id,
+                "sender_name": notification_data.sender_name,
+                "type": notification_data.type,
+                "title": notification_data.title,
+                "message": notification_data.message,
+                "icon": notification_data.icon,
+                "module_icon": notification_data.module_icon,
+                "data": notification_data.data,
+                "is_read": False,
+                "created_at": datetime.utcnow()
+            }
+            notification = Notification(**notification_dict)
             await db.notifications.insert_one(notification.dict())
 
 # Notifications routes
