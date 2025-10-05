@@ -102,7 +102,7 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        {/* Main Features Grid */}
+        {/* Main Features Grid - Row 1 */}
         <View style={styles.featuresGrid}>
           <TouchableOpacity
             style={[styles.featureCard, styles.calendarCard]}
@@ -115,6 +115,20 @@ export default function HomeScreen() {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.featureCard, styles.sosCard]}
+            onPress={() => navigateToSection('sos')}
+          >
+            <Text style={styles.featureIcon}>🚨</Text>
+            <Text style={styles.featureTitle}>SOS</Text>
+            <Text style={styles.featureSubtitle}>
+              Emergência Familiar
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Second Row */}
+        <View style={styles.featuresGrid}>
           <TouchableOpacity
             style={[styles.featureCard, styles.chatCard]}
             onPress={() => navigateToSection('chat')}
@@ -136,7 +150,10 @@ export default function HomeScreen() {
               Partilhar notas e fotos
             </Text>
           </TouchableOpacity>
+        </View>
 
+        {/* Third Row */}
+        <View style={styles.featuresGrid}>
           <TouchableOpacity
             style={[styles.featureCard, styles.tasksCard]}
             onPress={() => navigateToSection('tasks')}
@@ -147,10 +164,7 @@ export default function HomeScreen() {
               Organizar responsabilidades
             </Text>
           </TouchableOpacity>
-        </View>
 
-        {/* Second Row */}
-        <View style={styles.featuresGrid}>
           <TouchableOpacity
             style={[styles.featureCard, styles.contactsCard]}
             onPress={() => navigateToSection('contacts')}
@@ -161,20 +175,9 @@ export default function HomeScreen() {
               Números importantes
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureCard, styles.sosCard]}
-            onPress={() => navigateToSection('sos')}
-          >
-            <Text style={styles.featureIcon}>🚨</Text>
-            <Text style={styles.featureTitle}>SOS</Text>
-            <Text style={styles.featureSubtitle}>
-              Emergência Familiar
-            </Text>
-          </TouchableOpacity>
         </View>
 
-        {/* Third Row */}
+        {/* Admin Section */}
         <View style={styles.adminSection}>
           <TouchableOpacity
             style={[styles.featureCard, styles.adminCard, styles.fullWidthCard]}
