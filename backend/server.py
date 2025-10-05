@@ -299,6 +299,90 @@ async def create_chat_message(message_data: ChatMessageCreate, current_user: Use
     await db.chat_messages.insert_one(message.dict())
     return message
 
+# Tasks routes
+@api_router.post("/tasks", response_model=Task)
+async def create_task(task_data: TaskCreate, current_user: User = Depends(get_current_user)):
+    # Get responsible user info
+    responsible_user = await db.users.find_one({"id": task_data.responsible_id})
+    if not responsible_user:
+        raise HTTPException(status_code=404, detail="Utilizador responsável não encontrado")
+    
+    task = Task(
+        **task_data.dict(),
+        responsible_name=responsible_user["name"],
+        responsible_avatar=responsible_user["avatar"],
+        created_by=current_user.id,
+        created_by_name=current_user.name
+    )
+    await db.tasks.insert_one(task.dict())
+    return task
+
+@api_router.get("/tasks", response_model=List[Task])
+async def get_tasks(
+    status: Optional[str] = None,
+    responsible_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    query = {}
+    if status:
+        query["status"] = status
+    if responsible_id:
+        query["responsible_id"] = responsible_id
+    
+    tasks = await db.tasks.find(query).sort("created_at", -1).to_list(1000)
+    return [Task(**task) for task in tasks]
+
+@api_router.put("/tasks/{task_id}", response_model=Task)
+async def update_task(task_id: str, task_data: TaskUpdate, current_user: User = Depends(get_current_user)):
+    # Find existing task
+    existing_task = await db.tasks.find_one({"id": task_id})
+    if not existing_task:
+        raise HTTPException(status_code=404, detail="Tarefa não encontrada")
+    
+    update_data = {k: v for k, v in task_data.dict().items() if v is not None}
+    
+    # If responsible_id is being updated, get new user info
+    if "responsible_id" in update_data:
+        responsible_user = await db.users.find_one({"id": update_data["responsible_id"]})
+        if not responsible_user:
+            raise HTTPException(status_code=404, detail="Utilizador responsável não encontrado")
+        update_data["responsible_name"] = responsible_user["name"]
+        update_data["responsible_avatar"] = responsible_user["avatar"]
+    
+    # If status is being updated to completed, set completed_at
+    if update_data.get("status") == "concluida":
+        update_data["completed_at"] = datetime.utcnow()
+    elif "status" in update_data and update_data["status"] != "concluida":
+        update_data["completed_at"] = None
+    
+    await db.tasks.update_one({"id": task_id}, {"$set": update_data})
+    
+    # Return updated task
+    updated_task = await db.tasks.find_one({"id": task_id})
+    return Task(**updated_task)
+
+@api_router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.tasks.delete_one({"id": task_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Tarefa não encontrada")
+    return {"message": "Tarefa eliminada"}
+
+@api_router.get("/tasks/stats")
+async def get_task_stats(current_user: User = Depends(get_current_user)):
+    total_tasks = await db.tasks.count_documents({})
+    completed_tasks = await db.tasks.count_documents({"status": "concluida"})
+    in_progress_tasks = await db.tasks.count_documents({"status": "em_progresso"})
+    pending_tasks = await db.tasks.count_documents({"status": "por_fazer"})
+    
+    return {
+        "total": total_tasks,
+        "completed": completed_tasks,
+        "in_progress": in_progress_tasks,
+        "pending": pending_tasks,
+        "all_completed": total_tasks > 0 and completed_tasks == total_tasks
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
