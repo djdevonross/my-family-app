@@ -150,13 +150,22 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.featureCard, styles.sosCard]}
-            onPress={() => navigateToSection('sos')}
+            style={[styles.featureCard, styles.notificationsCard]}
+            onPress={() => navigateToSection('notifications')}
           >
-            <Text style={styles.featureIcon}>🚨</Text>
-            <Text style={styles.featureTitle}>SOS</Text>
+            <View style={styles.featureIconContainer}>
+              <Text style={styles.featureIcon}>🔔</Text>
+              {unreadNotifications > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.featureTitle}>Notificações</Text>
             <Text style={styles.featureSubtitle}>
-              Emergência Familiar
+              Alertas da família
             </Text>
           </TouchableOpacity>
         </View>
