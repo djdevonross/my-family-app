@@ -165,6 +165,31 @@ class ContactUpdate(BaseModel):
     is_favorite: Optional[bool] = None
     is_sos_priority: Optional[bool] = None
 
+class SOSAlert(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str
+    user_avatar: str
+    date_time: datetime = Field(default_factory=datetime.utcnow)
+    confirmed: bool = True
+    status: str = "active"  # active, resolved, cancelled
+    contacts_notified: List[dict] = []
+    message: str = ""
+    location: Optional[dict] = None  # {lat, lng, accuracy}
+    device_id: Optional[str] = None
+    reason: Optional[str] = None
+    cancelled_at: Optional[datetime] = None
+
+class SOSAlertCreate(BaseModel):
+    message: Optional[str] = ""
+    location: Optional[dict] = None
+    device_id: Optional[str] = None
+    reason: Optional[str] = None
+
+class SOSAlertUpdate(BaseModel):
+    status: Optional[str] = None
+    message: Optional[str] = None
+
 # Basic route
 @api_router.get("/")
 async def root():
