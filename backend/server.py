@@ -425,6 +425,20 @@ async def create_task(task_data: TaskCreate, current_user: User = Depends(get_cu
         created_by_name=current_user.name
     )
     await db.tasks.insert_one(task.dict())
+    
+    # Create notification for all family members
+    notification_data = NotificationCreate(
+        type="tasks",
+        title="Nova tarefa atribuída",
+        message=f"{current_user.name} criou a tarefa '{task.title}' para {task.responsible_name}",
+        icon="✅",
+        module_icon="✅",
+        sender_id=current_user.id,
+        sender_name=current_user.name,
+        data={"task_id": task.id, "task_title": task.title}
+    )
+    await create_notification(notification_data)
+    
     return task
 
 @api_router.get("/tasks", response_model=List[Task])
