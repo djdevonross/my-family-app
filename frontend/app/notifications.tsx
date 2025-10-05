@@ -207,7 +207,11 @@ export default function NotificationsScreen() {
       });
 
       if (response.ok) {
-        loadNotifications();
+        await loadNotifications();
+        // Force immediate UI update
+        setTimeout(() => {
+          filterNotifications();
+        }, 100);
         Alert.alert('Sucesso', 'Todas as notificações foram marcadas como lidas');
       }
     } catch (error) {
