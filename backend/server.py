@@ -336,17 +336,21 @@ async def create_event(event_data: EventCreate, current_user: User = Depends(get
     await db.events.insert_one(event.dict())
     
     # Create notification for all family members
-    notification_data = NotificationCreate(
-        type="calendar",
-        title="Novo evento no calendário",
-        message=f"{current_user.name} criou o evento '{event.title}' para {event.date.strftime('%d/%m/%Y às %H:%M')}",
-        icon="📅",
-        module_icon="📅",
-        sender_id=current_user.id,
-        sender_name=current_user.name,
-        data={"event_id": event.id, "event_title": event.title}
-    )
-    await create_notification(notification_data)
+    try:
+        notification_data = NotificationCreate(
+            type="calendar",
+            title="Novo evento no calendário",
+            message=f"{current_user.name} criou o evento '{event.title}' para {event.date.strftime('%d/%m/%Y às %H:%M')}",
+            icon="📅",
+            module_icon="📅",
+            sender_id=current_user.id,
+            sender_name=current_user.name,
+            data={"event_id": event.id, "event_title": event.title}
+        )
+        await create_notification(notification_data)
+    except Exception as e:
+        print(f"Error creating notification: {e}")
+        # Continue execution even if notification fails
     
     return event
 
