@@ -238,7 +238,12 @@ export default function NotificationsScreen() {
               });
 
               if (response.ok) {
-                loadNotifications();
+                await loadNotifications();
+                // Force immediate UI update by resetting filtered notifications
+                setFilteredNotifications([]);
+                setTimeout(() => {
+                  filterNotifications();
+                }, 100);
                 Alert.alert('Sucesso', 'Notificações lidas eliminadas');
               }
             } catch (error) {
