@@ -371,6 +371,20 @@ async def create_note(note_data: NoteCreate, current_user: User = Depends(get_cu
         created_by_name=current_user.name
     )
     await db.notes.insert_one(note.dict())
+    
+    # Create notification for all family members
+    notification_data = NotificationCreate(
+        type="notes",
+        title="Nova nota partilhada",
+        message=f"{current_user.name} adicionou uma nova nota: '{note.title}'",
+        icon="📝",
+        module_icon="📝",
+        sender_id=current_user.id,
+        sender_name=current_user.name,
+        data={"note_id": note.id, "note_title": note.title}
+    )
+    await create_notification(notification_data)
+    
     return note
 
 @api_router.get("/notes", response_model=List[Note])
