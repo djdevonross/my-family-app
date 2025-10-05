@@ -413,26 +413,26 @@ async def create_chat_message(message_data: ChatMessageCreate, current_user: Use
     await db.chat_messages.insert_one(message.dict())
     
     # Create notification for all family members except the sender
-    notification_data = NotificationCreate(
-        type="chat",
-        title="Nova mensagem no chat",
-        message=f"{current_user.name}: {message.message[:50]}{'...' if len(message.message) > 50 else ''}",
-        icon="💬",
-        module_icon="💬",
-        sender_id=current_user.id,
-        sender_name=current_user.name,
-        data={"message_id": message.id}
-    )
-    
-    # Send notification to all users except the sender
-    users = await db.users.find().to_list(5)
-    for user_data in users:
-        if user_data["id"] != current_user.id:  # Don't notify the sender
-            notification = Notification(
-                **notification_data.dict(),
-                recipient_id=user_data["id"]
-            )
-            await db.notifications.insert_one(notification.dict())
+    try:
+        # Send notification to all users except the sender
+        users = await db.users.find().to_list(5)
+        for user_data in users:
+            if user_data["id"] != current_user.id:  # Don't notify the sender
+                notification = Notification(
+                    recipient_id=user_data["id"],
+                    type="chat",
+                    title="Nova mensagem no chat",
+                    message=f"{current_user.name}: {message.message[:50]}{'...' if len(message.message) > 50 else ''}",
+                    icon="💬",
+                    module_icon="💬",
+                    sender_id=current_user.id,
+                    sender_name=current_user.name,
+                    data={"message_id": message.id}
+                )
+                await db.notifications.insert_one(notification.dict())
+    except Exception as e:
+        print(f"Error creating chat notification: {e}")
+        # Continue execution even if notification fails
     
     return message
 
