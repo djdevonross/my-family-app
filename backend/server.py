@@ -109,6 +109,34 @@ class ChatMessage(BaseModel):
 class ChatMessageCreate(BaseModel):
     message: str
 
+class Task(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str = ""
+    responsible_id: str  # user_id
+    responsible_name: str
+    responsible_avatar: str
+    due_date: Optional[datetime] = None
+    status: str = "por_fazer"  # por_fazer, em_progresso, concluida
+    created_by: str  # user_id
+    created_by_name: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = None
+
+class TaskCreate(BaseModel):
+    title: str
+    description: str = ""
+    responsible_id: str
+    due_date: Optional[datetime] = None
+    status: str = "por_fazer"
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    responsible_id: Optional[str] = None
+    due_date: Optional[datetime] = None
+    status: Optional[str] = None
+
 # Basic route
 @api_router.get("/")
 async def root():
