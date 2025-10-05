@@ -519,6 +519,142 @@ async def get_sos_contacts(current_user: User = Depends(get_current_user)):
     contacts = await db.contacts.find(query).sort("name", 1).to_list(100)
     return [Contact(**contact) for contact in contacts]
 
+# SOS Emergency routes
+@api_router.post("/sos/alert", response_model=SOSAlert)
+async def create_sos_alert(alert_data: SOSAlertCreate, current_user: User = Depends(get_current_user)):
+    # Create SOS alert
+    sos_alert = SOSAlert(
+        user_id=current_user.id,
+        user_name=current_user.name,
+        user_avatar=current_user.avatar,
+        **alert_data.dict()
+    )
+    
+    # Get SOS priority contacts
+    sos_contacts_query = {
+        "$or": [
+            {"user_id": current_user.id, "is_sos_priority": True},
+            {"contact_type": "family", "is_sos_priority": True}
+        ]
+    }
+    sos_contacts = await db.contacts.find(sos_contacts_query).to_list(100)
+    
+    # Prepare contacts notification list
+    contacts_notified = []
+    for contact in sos_contacts:
+        contacts_notified.append({
+            "name": contact["name"],
+            "phone_number": contact["phone_number"],
+            "relation": contact["relation"],
+            "notification_sent": True,  # In real implementation, this would depend on actual SMS/call success
+            "method": "sms",
+            "timestamp": datetime.utcnow().isoformat()
+        })
+    
+    sos_alert.contacts_notified = contacts_notified
+    
+    # Save alert to database
+    await db.sos_alerts.insert_one(sos_alert.dict())
+    
+    # Create automatic chat message
+    emergency_message = {
+        "message": f"🚨 Emergência – Preciso de ajuda! {current_user.name} acionou o SOS às {format(sos_alert.date_time, '%H:%M')}.",
+        "created_by": "system",
+        "created_by_name": "Sistema SOS",
+        "created_by_avatar": "🚨",
+        "created_at": datetime.utcnow()
+    }
+    
+    # Insert emergency message into chat
+    chat_message = ChatMessage(
+        id=str(uuid.uuid4()),
+        **emergency_message
+    )
+    await db.chat_messages.insert_one(chat_message.dict())
+    
+    return sos_alert
+
+@api_router.put("/sos/alert/{alert_id}/cancel", response_model=SOSAlert)
+async def cancel_sos_alert(alert_id: str, current_user: User = Depends(get_current_user)):
+    # Find the alert
+    existing_alert = await db.sos_alerts.find_one({"id": alert_id})
+    if not existing_alert:
+        raise HTTPException(status_code=404, detail="Alerta SOS não encontrado")
+    
+    # Check if user owns the alert
+    if existing_alert["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Não tem permissão para cancelar este alerta")
+    
+    # Update alert status
+    update_data = {
+        "status": "cancelled",
+        "cancelled_at": datetime.utcnow()
+    }
+    await db.sos_alerts.update_one({"id": alert_id}, {"$set": update_data})
+    
+    # Create cancellation message in chat
+    cancellation_message = {
+        "message": f"✅ Alerta SOS cancelado por {current_user.name} às {format(datetime.utcnow(), '%H:%M')}. Emergência resolvida.",
+        "created_by": "system",
+        "created_by_name": "Sistema SOS",
+        "created_by_avatar": "✅",
+        "created_at": datetime.utcnow()
+    }
+    
+    chat_message = ChatMessage(
+        id=str(uuid.uuid4()),
+        **cancellation_message
+    )
+    await db.chat_messages.insert_one(chat_message.dict())
+    
+    # Return updated alert
+    updated_alert = await db.sos_alerts.find_one({"id": alert_id})
+    return SOSAlert(**updated_alert)
+
+@api_router.get("/sos/alerts", response_model=List[SOSAlert])
+async def get_sos_alerts(current_user: User = Depends(get_current_user)):
+    # Get all SOS alerts (family can see all alerts for transparency)
+    alerts = await db.sos_alerts.find().sort("date_time", -1).limit(50).to_list(50)
+    return [SOSAlert(**alert) for alert in alerts]
+
+@api_router.get("/sos/alerts/active", response_model=List[SOSAlert])
+async def get_active_sos_alerts(current_user: User = Depends(get_current_user)):
+    # Get only active SOS alerts
+    alerts = await db.sos_alerts.find({"status": "active"}).sort("date_time", -1).to_list(10)
+    return [SOSAlert(**alert) for alert in alerts]
+
+@api_router.put("/sos/alert/{alert_id}/resolve", response_model=SOSAlert)
+async def resolve_sos_alert(alert_id: str, current_user: User = Depends(get_current_user)):
+    # Find the alert
+    existing_alert = await db.sos_alerts.find_one({"id": alert_id})
+    if not existing_alert:
+        raise HTTPException(status_code=404, detail="Alerta SOS não encontrado")
+    
+    # Update alert status to resolved
+    update_data = {
+        "status": "resolved"
+    }
+    await db.sos_alerts.update_one({"id": alert_id}, {"$set": update_data})
+    
+    # Create resolution message in chat
+    resolution_message = {
+        "message": f"✅ Alerta SOS resolvido por {current_user.name} às {format(datetime.utcnow(), '%H:%M')}. Emergência atendida.",
+        "created_by": "system", 
+        "created_by_name": "Sistema SOS",
+        "created_by_avatar": "✅",
+        "created_at": datetime.utcnow()
+    }
+    
+    chat_message = ChatMessage(
+        id=str(uuid.uuid4()),
+        **resolution_message
+    )
+    await db.chat_messages.insert_one(chat_message.dict())
+    
+    # Return updated alert
+    updated_alert = await db.sos_alerts.find_one({"id": alert_id})
+    return SOSAlert(**updated_alert)
+
 # Include the router in the main app
 app.include_router(api_router)
 
