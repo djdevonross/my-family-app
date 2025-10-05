@@ -377,17 +377,21 @@ async def create_note(note_data: NoteCreate, current_user: User = Depends(get_cu
     await db.notes.insert_one(note.dict())
     
     # Create notification for all family members
-    notification_data = NotificationCreate(
-        type="notes",
-        title="Nova nota partilhada",
-        message=f"{current_user.name} adicionou uma nova nota: '{note.title}'",
-        icon="📝",
-        module_icon="📝",
-        sender_id=current_user.id,
-        sender_name=current_user.name,
-        data={"note_id": note.id, "note_title": note.title}
-    )
-    await create_notification(notification_data)
+    try:
+        notification_data = NotificationCreate(
+            type="notes",
+            title="Nova nota partilhada",
+            message=f"{current_user.name} adicionou uma nova nota: '{note.title}'",
+            icon="📝",
+            module_icon="📝",
+            sender_id=current_user.id,
+            sender_name=current_user.name,
+            data={"note_id": note.id, "note_title": note.title}
+        )
+        await create_notification(notification_data)
+    except Exception as e:
+        print(f"Error creating note notification: {e}")
+        # Continue execution even if notification fails
     
     return note
 
