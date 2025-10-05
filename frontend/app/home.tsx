@@ -323,6 +323,18 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: '#E67E22',
   },
+  sosCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#E74C3C',
+    backgroundColor: '#FDECEC',
+  },
+  adminSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  fullWidthCard: {
+    minWidth: '100%',
+  },
   adminCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#9B59B6',
