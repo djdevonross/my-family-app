@@ -147,9 +147,12 @@ export default function HomeScreen() {
               Organizar responsabilidades
             </Text>
           </TouchableOpacity>
+        </View>
 
+        {/* Admin Section */}
+        <View style={styles.adminSection}>
           <TouchableOpacity
-            style={[styles.featureCard, styles.adminCard]}
+            style={[styles.featureCard, styles.adminCard, styles.fullWidthCard]}
             onPress={() => navigateToSection('admin')}
           >
             <Text style={styles.featureIcon}>⚙️</Text>
