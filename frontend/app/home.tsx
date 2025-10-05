@@ -385,10 +385,35 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: '#E67E22',
   },
+  notificationsCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#8E44AD',
+  },
   sosCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#E74C3C',
     backgroundColor: '#FDECEC',
+  },
+  featureIconContainer: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#FF0000',
+    borderRadius: 12,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   adminSection: {
     paddingHorizontal: 24,
