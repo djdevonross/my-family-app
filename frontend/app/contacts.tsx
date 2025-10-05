@@ -334,7 +334,7 @@ export default function ContactsScreen() {
     const canEdit = contact.user_id === user?.id || (contact.contact_type === 'family' && user?.is_admin);
 
     return (
-      <View key={contact.id} style={[
+      <View style={[
         styles.contactCard,
         contact.contact_type === 'family' && styles.familyContactCard
       ]}>
