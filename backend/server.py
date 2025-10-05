@@ -684,6 +684,114 @@ async def resolve_sos_alert(alert_id: str, current_user: User = Depends(get_curr
     updated_alert = await db.sos_alerts.find_one({"id": alert_id})
     return SOSAlert(**updated_alert)
 
+# Helper function to create notifications
+async def create_notification(notification_data: NotificationCreate):
+    """Helper function to create notifications for family members"""
+    if notification_data.recipient_id:
+        # Send to specific user
+        notification = Notification(**notification_data.dict())
+        await db.notifications.insert_one(notification.dict())
+    else:
+        # Send to all family members
+        users = await db.users.find().to_list(5)
+        for user_data in users:
+            notification = Notification(
+                **notification_data.dict(),
+                recipient_id=user_data["id"]
+            )
+            await db.notifications.insert_one(notification.dict())
+
+# Notifications routes
+@api_router.post("/notifications", response_model=Notification)
+async def create_notification_endpoint(notification_data: NotificationCreate, current_user: User = Depends(get_current_user)):
+    await create_notification(notification_data)
+    return {"message": "Notification created successfully"}
+
+@api_router.get("/notifications", response_model=List[Notification])
+async def get_notifications(
+    type_filter: Optional[str] = None,
+    is_read: Optional[bool] = None,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    query = {"recipient_id": current_user.id}
+    
+    if type_filter:
+        query["type"] = type_filter
+    if is_read is not None:
+        query["is_read"] = is_read
+    
+    notifications = await db.notifications.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+    return [Notification(**notif) for notif in notifications]
+
+@api_router.put("/notifications/{notification_id}/read", response_model=Notification)
+async def mark_notification_as_read(notification_id: str, current_user: User = Depends(get_current_user)):
+    # Check if user owns the notification
+    existing_notification = await db.notifications.find_one({
+        "id": notification_id, 
+        "recipient_id": current_user.id
+    })
+    
+    if not existing_notification:
+        raise HTTPException(status_code=404, detail="Notificação não encontrada")
+    
+    # Mark as read
+    await db.notifications.update_one(
+        {"id": notification_id}, 
+        {
+            "$set": {
+                "is_read": True,
+                "read_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    updated_notification = await db.notifications.find_one({"id": notification_id})
+    return Notification(**updated_notification)
+
+@api_router.put("/notifications/mark-all-read")
+async def mark_all_notifications_as_read(current_user: User = Depends(get_current_user)):
+    result = await db.notifications.update_many(
+        {"recipient_id": current_user.id, "is_read": False},
+        {
+            "$set": {
+                "is_read": True,
+                "read_at": datetime.utcnow()
+            }
+        }
+    )
+    return {"message": f"{result.modified_count} notificações marcadas como lidas"}
+
+@api_router.delete("/notifications/clear-read")
+async def clear_read_notifications(current_user: User = Depends(get_current_user)):
+    result = await db.notifications.delete_many({
+        "recipient_id": current_user.id,
+        "is_read": True
+    })
+    return {"message": f"{result.deleted_count} notificações limpas"}
+
+@api_router.get("/notifications/count")
+async def get_unread_notifications_count(current_user: User = Depends(get_current_user)):
+    unread_count = await db.notifications.count_documents({
+        "recipient_id": current_user.id,
+        "is_read": False
+    })
+    return {"unread_count": unread_count}
+
+@api_router.get("/notifications/types")
+async def get_notification_types():
+    return {
+        "types": [
+            {"key": "calendar", "label": "Calendário", "icon": "📅"},
+            {"key": "chat", "label": "Chat", "icon": "💬"},
+            {"key": "notes", "label": "Notas", "icon": "📝"},
+            {"key": "tasks", "label": "Tarefas", "icon": "✅"},
+            {"key": "sos", "label": "SOS", "icon": "🚨"},
+            {"key": "contacts", "label": "Contactos", "icon": "📞"},
+            {"key": "general", "label": "Geral", "icon": "🔔"}
+        ]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
