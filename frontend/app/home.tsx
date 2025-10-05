@@ -24,10 +24,21 @@ interface User {
 export default function HomeScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
     loadUser();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadUnreadNotifications();
+      
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(loadUnreadNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   const loadUser = async () => {
     try {
