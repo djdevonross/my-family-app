@@ -287,6 +287,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: '#F39C12',
   },
+  tasksCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#27AE60',
+  },
   adminCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#9B59B6',
