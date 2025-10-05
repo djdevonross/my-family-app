@@ -138,6 +138,17 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={[styles.featureCard, styles.tasksCard]}
+            onPress={() => navigateToSection('tasks')}
+          >
+            <Text style={styles.featureIcon}>✅</Text>
+            <Text style={styles.featureTitle}>Tarefas</Text>
+            <Text style={styles.featureSubtitle}>
+              Organizar responsabilidades
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.featureCard, styles.adminCard]}
             onPress={() => navigateToSection('admin')}
           >
