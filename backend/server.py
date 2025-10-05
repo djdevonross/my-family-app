@@ -411,6 +411,89 @@ async def get_task_stats(current_user: User = Depends(get_current_user)):
         "all_completed": total_tasks > 0 and completed_tasks == total_tasks
     }
 
+# Contacts routes
+@api_router.post("/contacts", response_model=Contact)
+async def create_contact(contact_data: ContactCreate, current_user: User = Depends(get_current_user)):
+    contact = Contact(
+        **contact_data.dict(),
+        user_id=current_user.id,
+        created_by_name=current_user.name
+    )
+    await db.contacts.insert_one(contact.dict())
+    return contact
+
+@api_router.get("/contacts", response_model=List[Contact])
+async def get_contacts(
+    contact_type: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    # Get personal contacts + family contacts
+    query = {
+        "$or": [
+            {"user_id": current_user.id},  # Personal contacts
+            {"contact_type": "family"}     # Family contacts visible to all
+        ]
+    }
+    
+    if contact_type:
+        query["contact_type"] = contact_type
+    
+    contacts = await db.contacts.find(query).sort([
+        ("is_favorite", -1),      # Favorites first
+        ("contact_type", 1),      # Family contacts first
+        ("name", 1)               # Then alphabetical
+    ]).to_list(1000)
+    
+    return [Contact(**contact) for contact in contacts]
+
+@api_router.put("/contacts/{contact_id}", response_model=Contact)
+async def update_contact(contact_id: str, contact_data: ContactUpdate, current_user: User = Depends(get_current_user)):
+    # Check if user owns the contact or if it's a family contact and user is admin
+    existing_contact = await db.contacts.find_one({"id": contact_id})
+    if not existing_contact:
+        raise HTTPException(status_code=404, detail="Contacto não encontrado")
+    
+    # Only owner or admin (for family contacts) can edit
+    if existing_contact["user_id"] != current_user.id:
+        if not (existing_contact["contact_type"] == "family" and current_user.is_admin):
+            raise HTTPException(status_code=403, detail="Não tem permissão para editar este contacto")
+    
+    update_data = {k: v for k, v in contact_data.dict().items() if v is not None}
+    await db.contacts.update_one({"id": contact_id}, {"$set": update_data})
+    
+    updated_contact = await db.contacts.find_one({"id": contact_id})
+    return Contact(**updated_contact)
+
+@api_router.delete("/contacts/{contact_id}")
+async def delete_contact(contact_id: str, current_user: User = Depends(get_current_user)):
+    # Check if user owns the contact or if it's a family contact and user is admin
+    existing_contact = await db.contacts.find_one({"id": contact_id})
+    if not existing_contact:
+        raise HTTPException(status_code=404, detail="Contacto não encontrado")
+    
+    # Only owner or admin (for family contacts) can delete
+    if existing_contact["user_id"] != current_user.id:
+        if not (existing_contact["contact_type"] == "family" and current_user.is_admin):
+            raise HTTPException(status_code=403, detail="Não tem permissão para eliminar este contacto")
+    
+    result = await db.contacts.delete_one({"id": contact_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Contacto não encontrado")
+    return {"message": "Contacto eliminado"}
+
+@api_router.get("/contacts/sos")
+async def get_sos_contacts(current_user: User = Depends(get_current_user)):
+    # Get SOS priority contacts for current user and family
+    query = {
+        "$or": [
+            {"user_id": current_user.id, "is_sos_priority": True},
+            {"contact_type": "family", "is_sos_priority": True}
+        ]
+    }
+    
+    contacts = await db.contacts.find(query).sort("name", 1).to_list(100)
+    return [Contact(**contact) for contact in contacts]
+
 # Include the router in the main app
 app.include_router(api_router)
 
