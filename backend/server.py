@@ -137,6 +137,34 @@ class TaskUpdate(BaseModel):
     due_date: Optional[datetime] = None
     status: Optional[str] = None
 
+class Contact(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    relation: str  # Mãe, Pai, Médico, Escola, etc.
+    phone_number: str
+    contact_type: str = "personal"  # personal, family
+    is_favorite: bool = False
+    is_sos_priority: bool = False
+    user_id: str  # owner of the contact
+    created_by_name: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ContactCreate(BaseModel):
+    name: str
+    relation: str
+    phone_number: str
+    contact_type: str = "personal"
+    is_favorite: bool = False
+    is_sos_priority: bool = False
+
+class ContactUpdate(BaseModel):
+    name: Optional[str] = None
+    relation: Optional[str] = None
+    phone_number: Optional[str] = None
+    contact_type: Optional[str] = None
+    is_favorite: Optional[bool] = None
+    is_sos_priority: Optional[bool] = None
+
 # Basic route
 @api_router.get("/")
 async def root():
