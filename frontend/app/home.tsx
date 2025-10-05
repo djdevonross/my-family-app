@@ -55,6 +55,27 @@ export default function HomeScreen() {
     }
   };
 
+  const loadUnreadNotifications = async () => {
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/api/notifications/count`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadNotifications(data.unread_count);
+      }
+    } catch (error) {
+      console.error('Error loading unread notifications:', error);
+    }
+  };
+
   const handleLogout = async () => {
     Alert.alert(
       'Terminar Sessão',
