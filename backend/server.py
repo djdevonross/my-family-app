@@ -190,6 +190,35 @@ class SOSAlertUpdate(BaseModel):
     status: Optional[str] = None
     message: Optional[str] = None
 
+class Notification(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    recipient_id: str  # user who receives the notification
+    sender_id: Optional[str] = None  # user who triggered the notification (if applicable)
+    sender_name: Optional[str] = None
+    type: str  # calendar, chat, notes, tasks, sos, contacts, general
+    title: str
+    message: str
+    icon: str = "🔔"  # emoji icon for the notification
+    module_icon: str = "📱"  # icon of the originating module
+    is_read: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    read_at: Optional[datetime] = None
+    data: Optional[dict] = None  # additional data (e.g., event_id, task_id, etc.)
+
+class NotificationCreate(BaseModel):
+    recipient_id: Optional[str] = None  # if None, send to all family members
+    sender_id: Optional[str] = None
+    sender_name: Optional[str] = None
+    type: str
+    title: str
+    message: str
+    icon: str = "🔔"
+    module_icon: str = "📱"
+    data: Optional[dict] = None
+
+class NotificationUpdate(BaseModel):
+    is_read: Optional[bool] = None
+
 # Basic route
 @api_router.get("/")
 async def root():
