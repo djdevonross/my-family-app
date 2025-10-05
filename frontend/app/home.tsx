@@ -198,6 +198,17 @@ export default function HomeScreen() {
         {/* Third Row */}
         <View style={styles.featuresGrid}>
           <TouchableOpacity
+            style={[styles.featureCard, styles.notesCard]}
+            onPress={() => navigateToSection('notes')}
+          >
+            <Text style={styles.featureIcon}>📝</Text>
+            <Text style={styles.featureTitle}>Notas</Text>
+            <Text style={styles.featureSubtitle}>
+              Partilhar notas e fotos
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.featureCard, styles.tasksCard]}
             onPress={() => navigateToSection('tasks')}
           >
@@ -207,7 +218,10 @@ export default function HomeScreen() {
               Organizar responsabilidades
             </Text>
           </TouchableOpacity>
+        </View>
 
+        {/* Fourth Row */}
+        <View style={styles.featuresGrid}>
           <TouchableOpacity
             style={[styles.featureCard, styles.contactsCard]}
             onPress={() => navigateToSection('contacts')}
@@ -218,6 +232,8 @@ export default function HomeScreen() {
               Números importantes
             </Text>
           </TouchableOpacity>
+
+          <View style={styles.featureCard} />
         </View>
 
         {/* Admin Section */}
