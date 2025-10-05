@@ -305,12 +305,9 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: '#27AE60',
   },
-  adminSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  fullWidthCard: {
-    minWidth: '100%',
+  contactsCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#E67E22',
   },
   adminCard: {
     borderLeftWidth: 4,
