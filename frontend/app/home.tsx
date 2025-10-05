@@ -149,10 +149,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Admin Section */}
-        <View style={styles.adminSection}>
+        {/* Second Row */}
+        <View style={styles.featuresGrid}>
           <TouchableOpacity
-            style={[styles.featureCard, styles.adminCard, styles.fullWidthCard]}
+            style={[styles.featureCard, styles.contactsCard]}
+            onPress={() => navigateToSection('contacts')}
+          >
+            <Text style={styles.featureIcon}>📞</Text>
+            <Text style={styles.featureTitle}>Contactos</Text>
+            <Text style={styles.featureSubtitle}>
+              Números importantes
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.featureCard, styles.adminCard]}
             onPress={() => navigateToSection('admin')}
           >
             <Text style={styles.featureIcon}>⚙️</Text>
