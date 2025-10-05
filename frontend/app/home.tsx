@@ -163,7 +163,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.featureCard, styles.adminCard]}
+            style={[styles.featureCard, styles.sosCard]}
+            onPress={() => navigateToSection('sos')}
+          >
+            <Text style={styles.featureIcon}>🚨</Text>
+            <Text style={styles.featureTitle}>SOS</Text>
+            <Text style={styles.featureSubtitle}>
+              Emergência Familiar
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Third Row */}
+        <View style={styles.adminSection}>
+          <TouchableOpacity
+            style={[styles.featureCard, styles.adminCard, styles.fullWidthCard]}
             onPress={() => navigateToSection('admin')}
           >
             <Text style={styles.featureIcon}>⚙️</Text>
