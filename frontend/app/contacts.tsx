@@ -501,7 +501,11 @@ export default function ContactsScreen() {
           </View>
         ) : (
           <View style={styles.contactsList}>
-            {filteredContacts.map(renderContactCard)}
+            {filteredContacts.map((contact) => (
+              <View key={contact.id}>
+                {renderContactCard(contact)}
+              </View>
+            ))}
           </View>
         )}
       </ScrollView>
