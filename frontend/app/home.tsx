@@ -173,6 +173,17 @@ export default function HomeScreen() {
         {/* Second Row */}
         <View style={styles.featuresGrid}>
           <TouchableOpacity
+            style={[styles.featureCard, styles.sosCard]}
+            onPress={() => navigateToSection('sos')}
+          >
+            <Text style={styles.featureIcon}>🚨</Text>
+            <Text style={styles.featureTitle}>SOS</Text>
+            <Text style={styles.featureSubtitle}>
+              Emergência Familiar
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.featureCard, styles.chatCard]}
             onPress={() => navigateToSection('chat')}
           >
@@ -180,17 +191,6 @@ export default function HomeScreen() {
             <Text style={styles.featureTitle}>Chat Familiar</Text>
             <Text style={styles.featureSubtitle}>
               Conversar em família
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureCard, styles.notesCard]}
-            onPress={() => navigateToSection('notes')}
-          >
-            <Text style={styles.featureIcon}>📝</Text>
-            <Text style={styles.featureTitle}>Notas</Text>
-            <Text style={styles.featureSubtitle}>
-              Partilhar notas e fotos
             </Text>
           </TouchableOpacity>
         </View>
